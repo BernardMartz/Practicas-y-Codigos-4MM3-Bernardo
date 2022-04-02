@@ -1,0 +1,348 @@
+
+/* --COPYRIGHT--,BSD
+ * Copyright (c) 2017, Texas Instruments Incorporated
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --/COPYRIGHT--*/
+/******************************************************************************
+ * MSP432 Empty Project
+ *
+ * Description: An empty project that uses DriverLib
+ *
+ *                MSP432P401
+ *             ------------------
+ *         /|\|                  |
+ *          | |                  |
+ *          --|RST               |
+ *            |                  |
+ *            |                  |
+ *            |                  |
+ *            |                  |
+ *            |                  |
+ * Author: 
+*******************************************************************************/
+/* DriverLib Includes */
+#include <ti/devices/msp432p4xx/driverlib/driverlib.h>
+
+/* Standard Includes */
+#include <stdint.h>
+#include <stdbool.h>
+
+
+
+int main(void)
+ {
+
+    /* Stop Watchdog  */
+    MAP_WDT_A_holdTimer();
+    /* Configuración de GPIOs */
+
+    int cont = 0;
+
+    char modo = 'B'; //bit de eleccion de modo, inicializado en el modo de la secuencia o modo normal
+
+    char parpadeo_A; //auxiliar para el parpadeo antes de cambio
+    char parpadeo_V; //auxiliar para el parpadeo antes de cambio
+
+    int parpadeo_A2; //auxiliar para el parpadeo antes de cambio en semaforo 2
+    int parpadeo_V2; //auxiliar para el parpadeo antes de cambio en semaforo 2
+    int parpadeo_R2; //auxiliar para el parpadeo antes de cambio en semaforo 2
+
+    int i;           // contador utilizado para el retardo para ajustar la frecuencia a 0.8HZ
+    int i_3;         // contador utilizado para el retardo para ajustar la frecuencia a 0.8HZ
+    int i_2;         // contador utilizado para el retardo para ajustar la frecuencia a 0.8HZ
+    int i_4;         // contador utilizado para el retardo para ajustar la frecuencia a 0.8HZ
+
+    int conteo_B = 0; //contador utilizado para tener cumplir un tiempo de 4 segundos en la secuencia de botones
+    int conteo_C = 0; //contador utilizado para tener cumplir un tiempo de 4 segundos en la secuencia de botones
+    int conteo_m = 0;  //contador utilizado para tener cumplir un tiempo de 4 segundos en la secuencia de botones
+    int conteo_m2 = 0; //contador utilizado para tener cumplir un tiempo de 4 segundos en la secuencia de botones
+
+    int blink;         //auxiliar utilizado para el parpadeo led led amarillo en el modo A (1 Hz)
+
+    int Contpar_A;     //auxiliar para conteo de dos parpadeos antes de realizar un cambio amarillo
+    int Contpar_V;    //auxiliar para conteo de dos parpadeos antes de realizar un cambio verde
+    int Contpar_R;    //auxiliar para conteo de dos parpadeos antes de realizar un cambio rojo
+
+
+
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN1);      // P1.1 -> Entrada con Pull-up
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN4);      // P1.4 -> Entrada con Pull-up
+
+    GPIO_setAsOutputPin(GPIO_PORT_P6, GPIO_PIN0);                       // P6.0 -> Salida ROJO
+    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN2);                       // P3.2 -> Salida AMARILLO
+    GPIO_setAsOutputPin(GPIO_PORT_P4, GPIO_PIN1);                       // P4.1 -> Salida VERDE
+
+    GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN5);                       // P1.5 -> Salida ROJO
+    GPIO_setAsOutputPin(GPIO_PORT_P4, GPIO_PIN6);                       // P4.6 -> Salida AMARILLO
+    GPIO_setAsOutputPin(GPIO_PORT_P6, GPIO_PIN5);                       // P6.5 -> Salida VERDE
+
+
+
+   GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6); //amarillo 2
+   GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN5); //verde 2
+   GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN5); //rojo 2
+
+    for(;;)
+    {
+ while(modo == 'A')  //inicio del modo A. Modo A = modo de seguridad
+            {
+
+                if (!(P1IN & BIT1)){
+                    for(i = 0;i<80000;i++){ //conteo de 4 segundos para el primer boton en la secuencia de botones
+                            }
+                             conteo_m = conteo_m + 1;
+                             if (conteo_m > 2 && !(P1IN & BIT4)) //conteo de 4 segundos para el segundo boton en la secuencia de botones
+                            {
+                                for(i_2 = 0;i_2<80000; i_2++){
+                                       }
+                                conteo_m2 = conteo_m2 + 1;
+                            }
+                                if (conteo_m2 > 2)  //condicion a cumplir si se pasan los 8 segundos
+                                {
+                                    modo = 'B';  //cambio de modo
+                                    conteo_m = 0; //reinicio de los contadores
+                                    conteo_m2 = 0; //reinicio de los contadores
+                                }
+
+                 }
+
+
+            GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN1); //led verde modo bajo
+            GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN0); //led rojo modo bajo
+
+            GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN5); //verde 2
+            GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN5); //rojo 2
+
+            for (blink = 0; blink<1; blink++)
+            {
+            GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN2); //amarillo 1 prendido
+            GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN6); //amarillo 2
+            for(i_2 = 0;i_2<50000;i_2++){
+                    }
+            GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN2); //amarillo 1 apagado
+            GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6); //amarillo 2
+            for(i_2 = 0;i_2<50000;i_2++){
+                     }
+
+
+            }//fin modo A
+            }
+
+
+while (modo == 'B') //inicio del modo B oh modo de secuencia
+        {
+            if (!(P1IN & BIT1)){
+                for(i = 0;i<80000;i++){ //conteo de 4 segundos para el primer boton en la secuencia de botones
+                        }
+                         conteo_B = conteo_B + 1;
+                         if (conteo_B > 2 && !(P1IN & BIT4)) //conteo de 4 segundos para el primer boton en la secuencia de botones
+                        {
+                            for(i_2 = 0;i_2<80000;i_2++){
+                                   }
+                            conteo_C = conteo_C + 1;
+                        }
+                            if (conteo_C > 2)
+                            {
+                                modo = 'A';   //Cambio a modo de trabajo A
+                                conteo_B = 0; //reincio de auxiliar para el cambio de secuencia de botones
+                                conteo_C = 0; //reinicio de auxiliar para el cambio de secuencia de botones.
+                            }
+
+            }
+            for(i = 0;i<200000;i++){ //Inicio de secuencia que sigue el modo B
+
+                               }
+                                 cont = cont + 1;
+                                if (cont >= 7)  //cuenta con 6 estados para seguir la secuencia completa
+                                {
+                                    cont = 0;
+                                }
+                          if (cont == 1) //estado 1: Verde 1 encendido, rojo 2 encendido
+                          {
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN2); //amarillo
+                              GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN1); //verde
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN0); //rojo
+                              parpadeo_A = false;
+                              parpadeo_V= false;
+
+
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6); //amarillo 2
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN5); //verde 2
+                              GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN5); //rojo 2
+                          }
+                          else if (cont == 2) //estado 2: Verde 1 parpadeo, rojo 2 encendido
+                                        {
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN2); //amarillo
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN0); //rojo
+
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6); //amarillo 2
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN5); //verde 2
+                              GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN5); //rojo 2
+                              parpadeo_A = false;
+                              parpadeo_V = true;
+
+                              if (parpadeo_V == true) //parpadeo led verde
+                              {
+                                  for(Contpar_V = 0; Contpar_V<2; Contpar_V++)
+                                  {
+                                  GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN1);
+                                  for(i_2 = 0;i_2<50000;i_2++){
+                                          }
+                                  GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN1);
+                                  for(i_2 = 0;i_2<50000;i_2++){
+                                          }
+                                  GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN1);
+                                  for(i_2 = 0;i_2<50000;i_2++){
+                                          }
+                                  }
+                              }
+
+
+                                        }
+                          else if (cont == 3) //estado 3 parpadeo Amarillo 1, rojo 2 encendio
+                          {
+                              parpadeo_A = true;
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN1);
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN0);
+
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6); //amarillo 2
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN5); //verde 2
+
+                              if (parpadeo_A == true) //parpadeo amarillo
+                              {
+                                  for(Contpar_A = 0; Contpar_A<10; Contpar_A++)
+                                  {
+                                  GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN2);
+                                  for(i_2 = 0;i_2<50000;i_2++){
+                                          }
+                                  GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN2);
+                                  for(i_2 = 0;i_2<50000;i_2++){
+                                          }
+                                  GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN2);
+                                  for(i_2 = 0;i_2<50000;i_2++){
+                                          }
+
+                                  if (Contpar_A > 8) //paradeo rojo antes del cambio
+                                  {
+                                      for(parpadeo_R2= 0; parpadeo_R2<2; parpadeo_R2++)
+                                      {
+                                          GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN5); //rojo 2
+                                          for(i_2 = 0;i_2<50000;i_2++){ }
+
+                                          GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN5); //rojo 2
+                                          for(i_2 = 0;i_2<50000;i_2++){ }
+                                      }
+                                  }
+
+                                  } //fin del for parpadeo
+
+                              }
+
+                          }
+                          else if (cont == 4) //estado 4 rojo 1 encendido, verde 2 encendido
+                          {
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN2);
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN1);
+                              GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN0);
+                              parpadeo_A = false;
+                              parpadeo_V= false;
+
+
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6); //amarillo 2
+                              GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN5); //verde 2
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN5); //rojo 2
+
+                          }
+                          else if (cont == 5) //estado 5, rojo 1 encendido, verde 2 parpadeo
+                          {
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN2);
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN1);
+                              GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN0);
+
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6); //amarillo 2
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN5); //rojo 2
+
+                              for (parpadeo_V2= 0; parpadeo_V2 <2; parpadeo_V2++)
+                              {
+                                  GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN5); //verde 2
+                                  for(i_2 = 0;i_2<50000;i_2++){}
+                                  GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN5); //verde 2
+                                  for(i_2 = 0;i_2<50000;i_2++){}
+                                  GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN5); //verde 2
+                                  for(i_2 = 0;i_2<50000;i_2++){}
+                              }
+
+                          }
+                          else if (cont == 6) //estado 6, rojo 1 encendido y parpadeo y amarillo 2 parpadeo
+                                        {
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN2); //amarillo
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN1); //verde
+                              GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN0); //rojo
+
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN5); //verde 2
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN5); //rojo 2
+
+
+
+                              for(parpadeo_A2 = 0; parpadeo_A2<10; parpadeo_A2++) //parpadeo amarillo
+                              {
+                              GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN6);
+                              for(i_2 = 0;i_2<50000;i_2++){
+                                      }
+                              GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN6);
+                              for(i_2 = 0;i_2<50000;i_2++){
+                                      }
+                              GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN6);
+                              for(i_2 = 0;i_2<50000;i_2++){
+                                      }
+
+                              if (parpadeo_A2 > 8) //parpadeo rojo
+                              {
+                                  for(Contpar_R = 0; Contpar_R<2; Contpar_R++)
+                                  {
+                                  GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN0);
+                                  for(i_2 = 0;i_2<50000;i_2++){
+                                          }
+                                  GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN0);
+                                  for(i_2 = 0;i_2<50000;i_2++){
+                                          }
+
+                                          }
+                                    }
+                              }
+                                        } //else if
+
+
+
+
+     } //fin modo B
+    }
+        }
+
